@@ -1,0 +1,6 @@
+{
+  "//": "Arahkan artefak auto-compile LaTeX (LaTeX Workshop) ke folder build/ agar root tetap rapi.",
+  "latex-workshop.latex.outDir": "%DIR%/build",
+  "latex-workshop.latex.autoClean.run": "onBuilt",
+  "latex-workshop.latex.clean.subfolder.enabled": true
+}

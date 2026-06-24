@@ -1,0 +1,52 @@
+% =====================================================================
+%  TEMPLATE Artikel Prosiding / Jurnal Teknik ITS (gaya POMITS)
+% ---------------------------------------------------------------------
+%  Sumber LaTeX ini DIKONVERSI ke .docx dengan Pandoc (lihat build-docx.ps1).
+%  Styling (font TNR, heading, A4, 2 kolom) diatur lewat reference.docx.
+%  Persamaan -> OMML (equation Word), \textit -> miring, _{} -> subskrip.
+%
+%  Build:   ./build-docx.ps1        (atau VSCode: Run Task "LaTeX to DOCX")
+%
+%  >>> YANG PERLU DIEDIT: bagian \title dan \author di bawah, lalu isi
+%      naskah di folder bagian/. Cari penanda "TODO" di seluruh proyek.
+% =====================================================================
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[indonesian]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\graphicspath{{gambar/}}
+
+% TODO: Ganti judul artikel Anda. Ditulis ringkas & informatif (Title Case),
+% Times New Roman 24pt non-bold rata tengah. Pakai \textit{...} untuk istilah asing.
+\title{Judul Artikel Ilmiah Ditulis Ringkas, Jelas, dan Informatif
+Menggunakan Huruf \textit{Title Case}}
+
+% TODO: Ganti nama penulis, pembimbing, afiliasi, dan e-mail.
+\author{Nama Penulis, Nama Pembimbing, dan Nama Ko-Pembimbing\\
+Departemen Teknik XXXX, Fakultas XXXX\\
+Institut Teknologi Sepuluh Nopember (ITS)\\
+Jl. Arief Rahman Hakim, Surabaya 60111\\
+e-mail: nrp@student.its.ac.id}
+\date{}
+
+\begin{document}
+\maketitle
+
+% Tiap bagian disimpan terpisah di folder bagian/ (rapi & expandable).
+% Untuk menambah bagian: buat file baru lalu \input di bawah ini.
+\input{bagian/00-abstrak}
+\input{bagian/01-pendahuluan}
+\input{bagian/02-metodologi}
+\input{bagian/03-hasil-pembahasan}
+\input{bagian/04-kesimpulan}
+
+% Daftar Pustaka dibangkitkan otomatis oleh Pandoc (--citeproc + ieee.csl).
+% Untuk kompilasi PDF langsung (opsional), aktifkan dua baris berikut:
+% \bibliographystyle{IEEEtran}
+% \bibliography{pustaka/pustaka}
+
+\end{document}

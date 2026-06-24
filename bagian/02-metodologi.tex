@@ -1,0 +1,58 @@
+% CONTOH (lorem ipsum) — demonstrasi subbab, gambar, persamaan, dan tabel.
+\section{II. METODOLOGI}
+
+\subsection{A. Rancangan Sistem}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
+nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat,
+seperti diilustrasikan pada Gambar~1. Duis aute irure dolor in reprehenderit in
+voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+
+% --- CONTOH GAMBAR ---------------------------------------------------
+% Cara pakai: taruh file di folder gambar/, panggil lewat \includegraphics.
+% Lebar 8,5 cm pas satu kolom. Nomor pada \caption ditulis MANUAL (gaya ITS).
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=8.5cm]{gambar/contoh-gambar.png}
+  \caption{Gambar 1. Lorem ipsum dolor sit amet, consectetur adipiscing elit:
+  keterangan gambar diletakkan di bawah gambar dan diberi nomor manual.}
+\end{figure}
+
+\subsection{B. Model Matematis}
+
+Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
+doloremque laudantium. Hubungan masukan--keluaran dinyatakan pada (1), dengan
+$K_p$ \textit{gain} proporsional dan $K_i$ \textit{gain} integral.
+% --- CONTOH PERSAMAAN: nomor manual di ruas kanan ---
+\begin{equation*}
+  y(t) = K_p\,e(t) + K_i \int_{0}^{t} e(\tau)\, d\tau \qquad\text{(1)}
+\end{equation*}
+Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi
+architecto beatae vitae dicta sunt explicabo, sehingga diperoleh bentuk orde dua
+baku pada (2).
+\begin{equation*}
+  G(s) = \frac{\omega_n^{2}}{s^{2} + 2\zeta\omega_n s + \omega_n^{2}}
+  \qquad\text{(2)}
+\end{equation*}
+
+\subsection{C. Parameter Rancangan}
+
+Nemo enim ipsam voluptatem quia voluptas sit aspernatur, dengan parameter utama
+dirangkum pada Tabel~1.
+
+% --- CONTOH TABEL: caption di atas, dirapikan otomatis (rata-tengah) ---
+\begin{table}[h]
+  \caption{Tabel 1. Lorem ipsum: spesifikasi dan parameter rancangan.}
+  \centering
+  \begin{tabular}{ll}
+  \hline
+  \textbf{Parameter} & \textbf{Nilai} \\
+  \hline
+  Lorem ipsum dolor   & 500 W / 48 V \\
+  Consectetur, $p$    & 5 \\
+  Adipiscing elit     & 20 kHz \\
+  Tempor incididunt   & 14 A \\
+  \hline
+  \end{tabular}
+\end{table}

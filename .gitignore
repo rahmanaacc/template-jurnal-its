@@ -1,0 +1,25 @@
+# --- Hasil build (di-generate, jangan di-commit) ---
+Prosiding.docx
+preview.pdf
+*.docx
+# KECUALI reference.docx (infrastruktur styling, wajib di-commit):
+!reference.docx
+
+# --- File sementara Microsoft Word ---
+~$*
+
+# --- Artefak kompilasi LaTeX ---
+build/
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.synctex.gz
+*.out
+*.toc
+*.bbl
+*.blg
+
+# --- OS ---
+Thumbs.db
+.DS_Store

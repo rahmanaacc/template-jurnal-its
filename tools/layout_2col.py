@@ -403,7 +403,6 @@ for tbl in doc.tables:
     if tblW is None:
         tblW = OxmlElement('w:tblW'); tblPr.append(tblW)
     tblW.set(qn('w:type'), 'pct'); tblW.set(qn('w:w'), '5000')
-    tbl.autofit = True
     # indent kiri 108 twip (0,19 cm) — posisi optimal tabel dalam kolom
     tblInd = tblPr.find(qn('w:tblInd'))
     if tblInd is None:
@@ -541,7 +540,7 @@ for tbl in doc.tables:
         continue
     ncol = len(tbl.columns)
     if len(widths) != ncol:
-        print(f"  \u26a0 Tabel {tbl_num}: {len(widths)} p-widths vs {ncol} kolom DOCX \u2014 dilewati")
+        print(f"  ⚠ Tabel {tbl_num}: {len(widths)} p-widths vs {ncol} kolom DOCX — dilewati")
         continue
     # fixed column layout + cell margin minimal
     tblLayout = tblPr.find(qn('w:tblLayout'))

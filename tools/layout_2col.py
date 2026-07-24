@@ -540,7 +540,7 @@ for tbl in doc.tables:
         continue
     ncol = len(tbl.columns)
     if len(widths) != ncol:
-        print(f"  ⚠ Tabel {tbl_num}: {len(widths)} p-widths vs {ncol} kolom DOCX — dilewati")
+        print(f"  [!] Tabel {tbl_num}: {len(widths)} p-widths vs {ncol} kolom DOCX -- dilewati")
         continue
     # fixed column layout + cell margin minimal
     tblLayout = tblPr.find(qn('w:tblLayout'))

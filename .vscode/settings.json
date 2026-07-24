@@ -1,0 +1,26 @@
+{
+  "//": "Arahkan artefak auto-compile LaTeX (LaTeX Workshop) ke folder build/ agar root tetap rapi.",
+  "latex-workshop.latex.outDir": "%DIR%/build",
+  "latex-workshop.latex.autoClean.run": "onBuilt",
+  "latex-workshop.latex.clean.subfolder.enabled": true,
+  "//": "Override recipe LaTeX Workshop — pakai build-docx.ps1 (Pandoc), BUKAN pdflatex.",
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "Jurnal POMITS (Pandoc → DOCX)",
+      "tools": ["build-docx"]
+    }
+  ],
+  "latex-workshop.latex.tools": [
+    {
+      "name": "build-docx",
+      "command": "powershell",
+      "args": [
+        "-ExecutionPolicy", "Bypass",
+        "-File", "%WORKSPACE_FOLDER%/build-docx.ps1"
+      ],
+      "env": {}
+    }
+  ],
+  "latex-workshop.latex.autoBuild.run": "onSave",
+  "latex-workshop.latex.recipe.default": "Jurnal POMITS (Pandoc → DOCX)"
+}

@@ -32,6 +32,7 @@ teks dan menjalankan satu perintah.
 
 - **Pandoc** → `winget install --id JohnMacFarlane.Pandoc`
 - **Python** + **python-docx** → `python -m pip install python-docx`
+- **rsvg-convert** (via MSYS2: `pacman -S mingw-w64-x86_64-librsvg`) — opsional, hanya jika pakai file `.svg`.
 - **Microsoft Word** *(opsional)* — hanya untuk preview PDF & hitung halaman.
 
 ## Cara pakai (3 langkah)
@@ -60,17 +61,19 @@ prosiding-its-template/
 ├─ bagian/                  # ISI NASKAH — edit di sini (expandable)
 │  ├─ 00-abstrak.tex
 │  ├─ 01-pendahuluan.tex
-│  ├─ 02-metodologi.tex     # contoh gambar, persamaan, tabel
+│  ├─ 02-metodologi.tex
 │  ├─ 03-hasil-pembahasan.tex
-│  └─ 04-kesimpulan.tex
-├─ gambar/                  # gambar (.png/.jpg) + contoh placeholder
+│  ├─ 04-kesimpulan.tex
+│  ├─ 05-lampiran.tex
+│  └─ 06-ucapan-terima-kasih.tex
+├─ gambar/                  # gambar (.png/.jpg) — taruh di sini
 ├─ pustaka/pustaka.bib      # basis referensi (BibTeX)
-├─ reference.docx           # ⚙ template gaya ITS untuk Pandoc — JANGAN dihapus
+├─ reference.docx           # template gaya ITS untuk Pandoc — JANGAN dihapus
 ├─ ieee.csl                 # gaya sitasi IEEE
-├─ build-docx.ps1           # 1-klik: Pandoc → layout 2 kolom → preview PDF
+├─ build-docx.ps1           # 1-klik: Pandoc -> layout 2 kolom -> preview PDF
 ├─ tools/
-│  ├─ layout_2col.py        # pasca-proses 2 kolom, header, drop cap, dll.
-│  └─ style_reference.py    # (lanjutan) membangun ulang reference.docx
+│  ├─ layout_2col.py        # pasca-proses 2 kolom, header, drop cap, p{...} parser
+│  └─ style_reference.py    # membangun ulang reference.docx
 └─ .vscode/                 # Run Task "LaTeX to DOCX"
 ```
 
@@ -101,8 +104,8 @@ prosiding-its-template/
 - Nomor Gambar/Tabel/Persamaan **ditulis manual** pada caption (bukan
   `\label/\ref`), sesuai gaya template ITS.
 - Huruf pertama Pendahuluan otomatis dijadikan **drop cap**.
-- Slot **LAMPIRAN** otomatis ditambahkan di akhir (boleh dibiarkan/dihapus di
-  Word).
+- Slot **LAMPIRAN** dan **UCAPAN TERIMA KASIH** tersedia di `bagian/05-lampiran.tex`
+  dan `bagian/06-ucapan-terima-kasih.tex`. Heading otomatis di-center & non-bold.
 
 ## Bagaimana pipeline bekerja (singkat)
 
@@ -110,8 +113,8 @@ prosiding-its-template/
    `ieee.csl`, gambar dari `gambar/`, persamaan → OMML, styling
    `reference.docx`).
 2. **`tools/layout_2col.py`** memasang *section break* (judul/abstrak 1 kolom,
-   isi 2 kolom), meng-*center* gambar, merapikan tabel, memasang header & drop
-   cap, lalu menambah slot Lampiran.
+   isi 2 kolom), meng-*center* gambar, merapikan tabel (booktabs + lebar kolom
+   `p{...}` dari LaTeX), memasang header & drop cap.
 3. Ekspor `preview.pdf` + hitung halaman (bila MS Word tersedia).
 
 > **Catatan tentang `reference.docx`:** berkas ini adalah "kerangka gaya" yang

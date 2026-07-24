@@ -395,10 +395,14 @@ for tbl in doc.tables:
         continue
     # lebar tabel = 100% kolom, kolom diskala proporsional.
     tblPr = tbl._tbl.tblPr
+    # hapus referensi table style (reference.docx) agar direct formatting murni
+    tblStyle = tblPr.find(qn('w:tblStyle'))
+    if tblStyle is not None:
+        tblPr.remove(tblStyle)
     tblW = tblPr.find(qn('w:tblW'))
     if tblW is None:
         tblW = OxmlElement('w:tblW'); tblPr.append(tblW)
-    tblW.set(qn('w:type'), 'pct'); tblW.set(qn('w:w'), '4735')
+    tblW.set(qn('w:type'), 'pct'); tblW.set(qn('w:w'), '5000')
     tbl.autofit = True
     # indent kiri 108 twip (0,19 cm) — posisi optimal tabel dalam kolom
     tblInd = tblPr.find(qn('w:tblInd'))
@@ -453,6 +457,142 @@ for tbl in doc.tables:
             tcBorders.append(bottom)
     n_celltbl += 1
 print("Tabel data: rata-tengah + lebar 100% kolom:", n_celltbl)
+
+# --- 4c) baca lebar kolom p{...} dari file LaTeX, terapkan ke DOCX ---
+# Pandoc tidak menerjemahkan p{...} ke gridCol DOCX. Di sini kita baca
+# langsung dari bagian/*.tex agar user cukup edit di LaTeX.
+import re, os, glob as _glob
+
+LATEX_DIR = os.path.dirname(sys.argv[1])  # direktori Prosiding.docx = root proyek
+BAGIAN_DIR = os.path.join(LATEX_DIR, 'bagian')
+
+def parse_p_widths(colspec):
+    """Parse \begin{tabular}{p{1.1cm}p{0.3cm}ccc} -> list of int twip (None utk c/l/r)."""
+    widths = []
+    for m in re.finditer(r'p\{([0-9.,]+)(cm|mm|pt|in)\}', colspec):
+        val = float(m.group(1).replace(',', '.'))
+        unit = m.group(2)
+        if unit == 'cm':
+            twip = round(val * 567)
+        elif unit == 'mm':
+            twip = round(val * 56.7)
+        elif unit == 'pt':
+            twip = round(val * 20)
+        elif unit == 'in':
+            twip = round(val * 1440)
+        widths.append(twip)
+    return widths
+
+def extract_latex_table_specs():
+    """Baca semua file .tex di bagian/, ekstrak mapping {nomor_tabel: [widths]}."""
+    specs = {}
+    tex_files = sorted(_glob.glob(os.path.join(BAGIAN_DIR, '*.tex')))
+    for fpath in tex_files:
+        with open(fpath, 'r', encoding='utf-8') as f:
+            content = f.read()
+        # cari \begin{table}...\end{table} (dengan atau tanpa [H h t b])
+        for tbl_match in re.finditer(
+            r'\\begin\{table\}(?:\[.*?\])?\s*(.*?)\\end\{table\}', content, re.DOTALL):
+            block = tbl_match.group(1)
+            # nomor tabel dari \caption{Tabel <N>. ...}
+            cap_m = re.search(r'\\caption\{Tabel\s+(\d+)', block)
+            if not cap_m:
+                continue
+            tbl_num = cap_m.group(1)
+            # column spec: cari \begin{tabular}{ lalu hitung braces
+            tab_start = block.find(r'\begin{tabular}{')
+            if tab_start == -1:
+                continue
+            brace_start = tab_start + len(r'\begin{tabular}{')
+            depth = 1
+            i = brace_start
+            while i < len(block) and depth > 0:
+                if block[i] == '{':
+                    depth += 1
+                elif block[i] == '}':
+                    depth -= 1
+                i += 1
+            colspec = block[brace_start:i-1]
+            widths = parse_p_widths(colspec)
+            if widths:
+                specs[tbl_num] = widths
+    return specs
+
+TAB_SPECS = extract_latex_table_specs()
+print(f"  p-widths dari LaTeX: {TAB_SPECS}")
+
+for tbl in doc.tables:
+    if tbl._tbl.find('.//' + qn('w:drawing')) is not None:
+        continue
+    if not tbl.rows:
+        continue
+    # ambil nomor tabel dari w:tblCaption
+    tblPr = tbl._tbl.tblPr
+    caption_el = tblPr.find(qn('w:tblCaption'))
+    if caption_el is None:
+        continue
+    cap_text = caption_el.get(qn('w:val'), '')
+    cap_m = re.search(r'Tabel\s+(\d+)', cap_text)
+    if not cap_m:
+        continue
+    tbl_num = cap_m.group(1)
+    widths = TAB_SPECS.get(tbl_num)
+    if widths is None:
+        continue
+    ncol = len(tbl.columns)
+    if len(widths) != ncol:
+        print(f"  \u26a0 Tabel {tbl_num}: {len(widths)} p-widths vs {ncol} kolom DOCX \u2014 dilewati")
+        continue
+    # fixed column layout + cell margin minimal
+    tblLayout = tblPr.find(qn('w:tblLayout'))
+    if tblLayout is None:
+        tblLayout = OxmlElement('w:tblLayout'); tblPr.append(tblLayout)
+    tblLayout.set(qn('w:type'), 'fixed')
+    tcMar = tblPr.find(qn('w:tblCellMar'))
+    if tcMar is None:
+        tcMar = OxmlElement('w:tblCellMar'); tblPr.insert(0, tcMar)
+    for edge in ('top', 'left', 'bottom', 'right'):
+        m = OxmlElement('w:' + edge)
+        m.set(qn('w:w'), '20'); m.set(qn('w:type'), 'dxa')
+        tcMar.append(m)
+    # update gridCol
+    tblGrid = tbl._tbl.find(qn('w:tblGrid'))
+    if tblGrid is None:
+        continue
+    grids = tblGrid.findall(qn('w:gridCol'))
+    for j, gc in enumerate(grids):
+        if j < len(widths):
+            gc.set(qn('w:w'), str(widths[j]))
+            gc.set(qn('w:type'), 'dxa')
+    # update table width ke total lebar kolom (dxa)
+    total_w = sum(widths)
+    tblW = tblPr.find(qn('w:tblW'))
+    if tblW is None:
+        tblW = OxmlElement('w:tblW'); tblPr.append(tblW)
+    tblW.set(qn('w:type'), 'dxa')
+    tblW.set(qn('w:w'), str(total_w))
+    # hapus indent (total lebar tabel = pas kolom)
+    tblInd = tblPr.find(qn('w:tblInd'))
+    if tblInd is not None:
+        tblPr.remove(tblInd)
+    # centerkan tabel dalam kolom
+    jc_el = tblPr.find(qn('w:jc'))
+    if jc_el is None:
+        jc_el = OxmlElement('w:jc'); tblPr.append(jc_el)
+    jc_el.set(qn('w:val'), 'center')
+    # update tcW tiap sel (agar konsisten)
+    for row in tbl.rows:
+        for j, cell in enumerate(row.cells):
+            if j < len(widths):
+                tcPr_cell = cell._tc.get_or_add_tcPr()
+                tcW = tcPr_cell.find(qn('w:tcW'))
+                if tcW is None:
+                    tcW = OxmlElement('w:tcW'); tcPr_cell.append(tcW)
+                tcW.set(qn('w:w'), str(widths[j]))
+                tcW.set(qn('w:type'), 'dxa')
+    print(f"  Tabel {tbl_num}: p-widths={widths} twip")
+
+print("")
 
 # --- 5) paksa A4 + margin ITS + header semua section ---
 # Header prosiding (3 baris, TNR 10pt, rata kiri pojok atas). Jarak header dari
